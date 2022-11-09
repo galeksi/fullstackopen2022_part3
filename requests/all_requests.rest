@@ -1,0 +1,14 @@
+@baseUrl = http://localhost:3001/
+@testId = 3
+
+### Delete
+DELETE {{baseUrl}}api/persons/{{testId}}
+
+### Add person
+POST {{baseUrl}}api/persons
+Content-Type: application/json
+
+{
+    "name": "Arto ggg",
+    "number": "12345"
+}
