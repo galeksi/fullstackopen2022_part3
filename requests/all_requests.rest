@@ -9,6 +9,6 @@ POST {{baseUrl}}api/persons
 Content-Type: application/json
 
 {
-    "name": "ddd",
-    "number": ""
+    "name": "Aleksi",
+    "number": "050-123456"
 }

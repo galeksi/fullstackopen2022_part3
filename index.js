@@ -52,24 +52,21 @@ app.get('/api/persons/:id', (request, response, next) => {
 app.post('/api/persons', (request, response, next) => {
     const newPerson = request.body
     // console.log(newPerson)
-    
-    // if (!newPerson.name || !newPerson.number) {
-        //     return response.status(400).json({
-    //         error: 'name or number missing'
-    //     })
-    // } else if (persons.find(pers => pers.name === newPerson.name)) {
-    //     return response.status(400).json({
-        //         error: `${newPerson.name} already in the phonebook`
-    //     })
-    // }
-    const person = new Person({
-        name: newPerson.name,
-        number: newPerson.number
+    Person.exists({ name: newPerson.name }, (err, doc) => {
+        // console.log(doc)
+        if (doc) {
+            return response.status(400).send({ error: `${newPerson.name} already in the phonebook` })
+        }
+        
+        const person = new Person({
+            name: newPerson.name,
+            number: newPerson.number
+        })
+        person.save().then(savedPerson => {
+            response.json(savedPerson)
+        })
+        .catch(error => next(error))
     })
-    person.save().then(savedPerson => {
-        response.json(savedPerson)
-    })
-    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -80,7 +77,7 @@ app.put('/api/persons/:id', (request, response, next) => {
         number: updatePerson.number,
     }
     // console.log(person)
-    Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    Person.findByIdAndUpdate(request.params.id, person, { new: true, runValidators: true, context: 'query' })
     .then(updatePerson => {
         response.json(updatePerson)
     })
@@ -98,6 +95,12 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
+    
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
+    }
     next(error)
 }
 
