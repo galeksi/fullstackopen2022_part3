@@ -40,13 +40,12 @@ app.get('/api/persons', (request, response, next) => {
         response.json(persons)
     })
 })
-    
+
 app.get('/api/persons/:id', (request, response, next) => {
-        const id = request.params.id
-        Person.findById(id).then( person => {
-            response.json(person)
-        })
-    .catch(error => next(error))  
+    const id = request.params.id
+    Person.findById(id).then( person => {
+        response.json(person)
+    }).catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response, next) => {
@@ -57,15 +56,13 @@ app.post('/api/persons', (request, response, next) => {
         if (doc) {
             return response.status(400).send({ error: `${newPerson.name} already in the phonebook` })
         }
-        
         const person = new Person({
             name: newPerson.name,
             number: newPerson.number
         })
         person.save().then(savedPerson => {
             response.json(savedPerson)
-        })
-        .catch(error => next(error))
+        }).catch(error => next(error))
     })
 })
 
@@ -89,13 +86,12 @@ app.delete('/api/persons/:id', (request, response, next) => {
     Person.findByIdAndRemove(id).then(person => {
         // console.log(person)
         response.status(204).end()
-    })
-    .catch(error => next(error))
+    }).catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
     console.error(error.message)
-    
+
     if (error.name === 'CastError') {
         return response.status(400).send({ error: 'malformatted id' })
     } else if (error.name === 'ValidationError') {
